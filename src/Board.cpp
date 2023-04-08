@@ -50,15 +50,30 @@ int Board::checkFour(Player& player){
 
   for(auto i = 8; i >= 1; --i){
     for(auto j = 9; j >= 1; --j){
-      if(board_[i][j] == XO && board_[i-1][j-1] == XO && board_[i-2][j-2] == XO && board_[i-3][j-3] == XO) win = 1;
+      if(board_[i][j] == XO && board_[i-1][j-1] == XO && board_[i-2][j-2] == XO && board_[i-3][j-3] == XO) {
+        win = 1;
+        std::cout << "First case in function!" << std::endl;
+      }
 
-      if(board_[i][j] == XO && board_[i][j-1] == XO && board_[i][j-2] == XO && board_[i][j-3] == XO) win = 1;
+      if(board_[i][j] == XO && board_[i][j-1] == XO && board_[i][j-2] == XO && board_[i][j-3] == XO) {
+        win = 1;
+        std::cout << "Second case in function!" << std::endl;
+      }
 
-      if(board_[i][j] == XO && board_[i-1][j] == XO && board_[i-2][j] == XO && board_[i-3][j] == XO) win = 1;
+      if(board_[i][j] == XO && board_[i-1][j] == XO && board_[i-2][j] == XO && board_[i-3][j] == XO) {
+        win = 1;
+        std::cout << "Third case in function!" << std::endl;
+      }
 
-      if(board_[i][j] == XO && board_[i-1][j+1] == XO && board_[i-2][j+2] == XO && board_[i-3][j+3] == XO) win = 1;
+      if(board_[i][j] == XO && board_[i-1][j+1] == XO && board_[i-2][j+2] == XO && board_[i-3][j+3] == XO) {
+        win = 1;
+        std::cout << "Fourth case in function!" << std::endl;
+      }
 
-      if(board_[i][j] == XO && board_[i][j+1] == XO && board_[i][j+2] == XO && board_[i][j+3]) win = 1;
+      if(board_[i][j] == XO && board_[i][j+1] == XO && board_[i][j+2] == XO && board_[i][j+3] == XO) {
+        win = 1;
+        std::cout << "Fifth case in function!" << std::endl;
+      }
     }
   }
 
