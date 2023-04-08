@@ -113,3 +113,14 @@ int Board::dropPlayer(Player& player){
   } while(dropChoice < 1 || dropChoice > 7);
   return dropChoice;
 }
+
+void Board::displayMenu(){
+  std::cout << "======================================" << std::endl;
+  std::cout << "Type your choice of game: " << std::endl;
+  std::cout << "Both random player (1)" << std::endl;
+  std::cout << "One random player (2)" << std::endl;
+  std::cout << "Normal game (3)" << std::endl;
+  std::cout << "======================================" << std::endl;
+  std::cout << "Choice: ";
+  std::cin >> choice_;
+}

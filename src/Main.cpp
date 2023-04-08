@@ -13,6 +13,7 @@ int main()
 	int dropChoice, win, full, again;
 
 	cout << "Let's Play Connect 4" << endl << endl;
+  board.displayMenu();
 	cout << "Player One please enter your name: ";
   std::string playerName;
   cin >> playerName;
