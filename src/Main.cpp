@@ -14,6 +14,14 @@ int main()
 
 	cout << "Let's Play Connect 4" << endl << endl;
   board.displayMenu();
+  
+  switch (+board.getChoice()) {
+    case 1: std::cout << "Do the job with both random players!" << std::endl; break;
+    case 2: std::cout << "Do the job with one random player!" << std::endl; break;
+    case 3: std::cout << "Normal game with human players!" << std::endl; break;
+    default: std::cout << "Budalica!" << std::endl;
+  } 
+
 	cout << "Player One please enter your name: ";
   std::string playerName;
   cin >> playerName;

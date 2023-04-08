@@ -21,6 +21,7 @@ class Board {
       sumOfMoves_ = firstPlayerNum + secondPlayerNum;
   }
   inline uint_fast8_t numberOfMoves(){ return sumOfMoves_; }
+  inline uint_fast8_t getChoice(){ return choice_; }
 
   private:
   std::vector<std::vector<char>> board_;
