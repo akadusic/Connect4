@@ -103,6 +103,8 @@ int Board::dropPlayer(Player& player){
     std::cout << player.getPlayerName() << "'s Turn ";
     std::cout << "Please enter a number between 1 and 7: ";
     std::cin >> dropChoice;
+    player.increaseNumberOfMoves();
+    std::cout << "Number of moves of player " << player.getPlayerName() << " is " << +player.numberOfMoves() << "." << std::endl;
 
     while(board_[1][dropChoice] == 'X' || board_[1][dropChoice] == 'O'){
       std::cout << "That row is full, please enter a new row: ";

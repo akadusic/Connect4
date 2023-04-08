@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Player.hpp>
+#include <cstdint>
 #include <vector>
 
 namespace DataModels {
@@ -15,8 +16,13 @@ class Board {
   int restart();
   int dropPlayer(Player&);
 
+  inline void increaseNumberOfMoves(uint_fast8_t firstPlayerNum, uint_fast8_t secondPlayerNum){ 
+      sumOfMoves_ = firstPlayerNum + secondPlayerNum;
+  }
+  inline uint_fast8_t numberOfMoves(){ return sumOfMoves_; }
+
   private:
   std::vector<std::vector<char>> board_;
-  // char board[][10];
+  uint_fast8_t sumOfMoves_{0};
 };
 } /* DataModels */

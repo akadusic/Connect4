@@ -62,10 +62,11 @@ int main()
 			cout << "The board is full, it is a draw!" << endl;
 			again = board.restart();
 		}
+    
+    
+    board.increaseNumberOfMoves(playerOne.numberOfMoves(), playerTwo.numberOfMoves());
+    std::cout << "Number of moves from both players: " << +board.numberOfMoves() << std::endl;
+	} while ( again != 2 );
 
-	}while ( again != 2 );
-
-	
-
-return 0;
+  return 0;
 }
