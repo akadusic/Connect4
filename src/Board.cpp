@@ -13,7 +13,6 @@ void Board::checkBellow(Player& player, const int dropChoice){
   do{
     if(board_[length][dropChoice] != 'X' && board_[length][dropChoice] != 'O'){
       board_[length][dropChoice] = player.getPlayerId();
-      std::cout << "Inside if in checkbellow func!" << std::endl;
       turn = 1;
     } else {
       --length;
@@ -96,17 +95,16 @@ int Board::restart(){
 }
 
 int Board::dropPlayer(Player& player){
-  int dropChoice;
+  int dropChoice{0};
   do{
     std::cout << player.getPlayerName() << "'s Turn ";
     if(choice_ == 1){
       std::cout << "Please enter a number between 1 and 7: ";
       std::cin >> dropChoice;
     } else if(choice_ == 2){
-      std::cout << "Random number is generating...";
       srand(time(nullptr));
       dropChoice = rand()%7 + 1; 
-      sleep(4); 
+      sleep(2); 
     }
     player.increaseNumberOfMoves();
     std::cout << "Number of moves of player " << player.getPlayerName() << " is " << +player.numberOfMoves() << "." << std::endl;

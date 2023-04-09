@@ -31,6 +31,8 @@ int main(){
   } else if(board.getChoice() == 2){
     playerOne.setName("Player1");
     playerTwo.setName("Player2");
+    playerOne.setId('X');
+    playerTwo.setId('O');
   }
   
 
@@ -42,6 +44,7 @@ int main(){
 	do{
     dropChoice = board.dropPlayer(playerOne);
     board.checkBellow(playerOne, dropChoice);
+    std::cout << "Drop choice first player: " << dropChoice << "\n";
     board.displayBoard();
     win = board.checkFour(playerOne);
 
@@ -54,7 +57,7 @@ int main(){
 		}
 
     dropChoice = board.dropPlayer(playerTwo);
-    std::cout << "Drop choice in main is: " << dropChoice << " \n";
+    std::cout << "Drop choice second player: " << dropChoice << " \n";
     board.checkBellow(playerTwo, dropChoice);
     board.displayBoard();
     win = board.checkFour(playerTwo);
