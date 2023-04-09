@@ -97,7 +97,7 @@ int Board::restart(){
 int Board::dropPlayer(Player& player){
   int dropChoice{0};
   do{
-    std::cout << player.getPlayerName() << "'s Turn ";
+    std::cout << player.getPlayerName() << "'s Turn " << std::endl;
     if(choice_ == 1){
       std::cout << "Please enter a number between 1 and 7: ";
       std::cin >> dropChoice;
@@ -110,8 +110,13 @@ int Board::dropPlayer(Player& player){
     std::cout << "Number of moves of player " << player.getPlayerName() << " is " << +player.numberOfMoves() << "." << std::endl;
 
     while(board_[1][dropChoice] == 'X' || board_[1][dropChoice] == 'O'){
+<<<<<<< HEAD
       std::cout << "That row is full, please enter a new row: ";
       if(choice_ == 1){
+=======
+      if(choice_ == 1){
+        std::cout << "That row is full, please enter a new row: " << std::endl;
+>>>>>>> e064683 (2023/4/9, Random players final changes)
         std::cin >> dropChoice;
       } else if (choice_ == 2){
         srand(time(nullptr));
