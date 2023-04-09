@@ -21,11 +21,11 @@ class Board {
       sumOfMoves_ = firstPlayerNum + secondPlayerNum;
   }
   inline uint_fast8_t numberOfMoves(){ return sumOfMoves_; }
-  inline uint_fast8_t getChoice(){ return choice_; }
+  inline int getChoice(){ return choice_; }
 
   private:
   std::vector<std::vector<char>> board_;
   uint_fast8_t sumOfMoves_{0};
-  uint_fast8_t choice_{0};
+  int choice_{0};
 };
 } /* DataModels */

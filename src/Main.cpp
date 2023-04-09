@@ -25,8 +25,14 @@ int main(){
 
 	cout << "Let's Play Connect 4" << endl << endl;
   board.displayMenu();
+
+  if(board.getChoice() == 1){
+    setPlayers(playerOne, playerTwo);
+  } else if(board.getChoice() == 2){
+    playerOne.setName("Player1");
+    playerTwo.setName("Player2");
+  }
   
-  setPlayers(playerOne, playerTwo);
 
 	full = 0;
 	win = 0;
@@ -38,6 +44,7 @@ int main(){
     board.checkBellow(playerOne, dropChoice);
     board.displayBoard();
     win = board.checkFour(playerOne);
+
 		if(win == 1){
       playerOne.playerWin();
 			again = board.restart();
@@ -47,6 +54,7 @@ int main(){
 		}
 
     dropChoice = board.dropPlayer(playerTwo);
+    std::cout << "Drop choice in main is: " << dropChoice << " \n";
     board.checkBellow(playerTwo, dropChoice);
     board.displayBoard();
     win = board.checkFour(playerTwo);

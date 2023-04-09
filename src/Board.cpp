@@ -1,4 +1,6 @@
 #include <Board.hpp>
+#include <unistd.h>
+#include <cstdlib>
 #include <iostream>
 
 using namespace DataModels;
@@ -11,6 +13,7 @@ void Board::checkBellow(Player& player, const int dropChoice){
   do{
     if(board_[length][dropChoice] != 'X' && board_[length][dropChoice] != 'O'){
       board_[length][dropChoice] = player.getPlayerId();
+      std::cout << "Inside if in checkbellow func!" << std::endl;
       turn = 1;
     } else {
       --length;
@@ -52,27 +55,22 @@ int Board::checkFour(Player& player){
     for(auto j = 9; j >= 1; --j){
       if(board_[i][j] == XO && board_[i-1][j-1] == XO && board_[i-2][j-2] == XO && board_[i-3][j-3] == XO) {
         win = 1;
-        std::cout << "First case in function!" << std::endl;
       }
 
       if(board_[i][j] == XO && board_[i][j-1] == XO && board_[i][j-2] == XO && board_[i][j-3] == XO) {
         win = 1;
-        std::cout << "Second case in function!" << std::endl;
       }
 
       if(board_[i][j] == XO && board_[i-1][j] == XO && board_[i-2][j] == XO && board_[i-3][j] == XO) {
         win = 1;
-        std::cout << "Third case in function!" << std::endl;
       }
 
       if(board_[i][j] == XO && board_[i-1][j+1] == XO && board_[i-2][j+2] == XO && board_[i-3][j+3] == XO) {
         win = 1;
-        std::cout << "Fourth case in function!" << std::endl;
       }
 
       if(board_[i][j] == XO && board_[i][j+1] == XO && board_[i][j+2] == XO && board_[i][j+3] == XO) {
         win = 1;
-        std::cout << "Fifth case in function!" << std::endl;
       }
     }
   }
@@ -101,8 +99,15 @@ int Board::dropPlayer(Player& player){
   int dropChoice;
   do{
     std::cout << player.getPlayerName() << "'s Turn ";
-    std::cout << "Please enter a number between 1 and 7: ";
-    std::cin >> dropChoice;
+    if(choice_ == 1){
+      std::cout << "Please enter a number between 1 and 7: ";
+      std::cin >> dropChoice;
+    } else if(choice_ == 2){
+      std::cout << "Random number is generating...";
+      srand(time(nullptr));
+      dropChoice = rand()%7 + 1; 
+      sleep(4); 
+    }
     player.increaseNumberOfMoves();
     std::cout << "Number of moves of player " << player.getPlayerName() << " is " << +player.numberOfMoves() << "." << std::endl;
 
@@ -117,9 +122,8 @@ int Board::dropPlayer(Player& player){
 void Board::displayMenu(){
   std::cout << "======================================" << std::endl;
   std::cout << "Type your choice of game: " << std::endl;
-  std::cout << "Both random player (1)" << std::endl;
-  std::cout << "One random player (2)" << std::endl;
-  std::cout << "Normal game (3)" << std::endl;
+  std::cout << "Both human players (1)" << std::endl;
+  std::cout << "Both random players (2)" << std::endl;
   std::cout << "======================================" << std::endl;
   std::cout << "Choice: ";
   std::cin >> choice_;
