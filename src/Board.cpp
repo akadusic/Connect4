@@ -111,7 +111,12 @@ int Board::dropPlayer(Player& player){
 
     while(board_[1][dropChoice] == 'X' || board_[1][dropChoice] == 'O'){
       std::cout << "That row is full, please enter a new row: ";
-      std::cin >> dropChoice;
+      if(choice_ == 1){
+        std::cin >> dropChoice;
+      } else if (choice_ == 2){
+        srand(time(nullptr));
+        dropChoice = rand()%7 + 1;
+      }
     }
   } while(dropChoice < 1 || dropChoice > 7);
   return dropChoice;

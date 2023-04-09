@@ -44,7 +44,6 @@ int main(){
 	do{
     dropChoice = board.dropPlayer(playerOne);
     board.checkBellow(playerOne, dropChoice);
-    std::cout << "Drop choice first player: " << dropChoice << "\n";
     board.displayBoard();
     win = board.checkFour(playerOne);
 
@@ -57,7 +56,6 @@ int main(){
 		}
 
     dropChoice = board.dropPlayer(playerTwo);
-    std::cout << "Drop choice second player: " << dropChoice << " \n";
     board.checkBellow(playerTwo, dropChoice);
     board.displayBoard();
     win = board.checkFour(playerTwo);
