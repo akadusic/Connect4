@@ -33,6 +33,13 @@ int main(){
     playerTwo.setName("Player2");
     playerOne.setId('X');
     playerTwo.setId('O');
+  } else if(board.getChoice() == 3){
+    cout << "Player One please enter your name: ";
+    string playerName;
+    cin >> playerName;
+    playerOne.setId('X');
+    playerTwo.setName("Machine");
+    playerTwo.setId('O');
   }
   
 

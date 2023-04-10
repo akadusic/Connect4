@@ -96,29 +96,45 @@ int Board::restart(){
 
 int Board::dropPlayer(Player& player){
   int dropChoice{0};
+
+  auto humanPlayers = [&](){
+    std::cout << "Please enter a number between 1 and 7: ";
+    std::cin >> dropChoice;
+  };
+
+  auto randomPlayers = [&]{
+    srand(time(nullptr));
+    dropChoice = rand()%7 + 1;
+    sleep(2);
+  };
+
+  auto humanVsMachine = [&]{
+    if(player.getPlayerId() == 'X') humanPlayers();
+    else randomPlayers();
+  };
+
+  auto wayOfPlaying = [&]{
+    if(choice_ == 1) humanPlayers();
+    else if(choice_ == 2) randomPlayers();
+    else if(choice_ == 3) humanVsMachine();
+  };
+
+  auto checkFullRow = [&]{
+    while(board_[1][dropChoice] == 'X' || board_[1][dropChoice] == 'O'){
+      std::cout << "That row is full, please enter a new row: ";
+      wayOfPlaying();
+    }
+  };
+
   do{
     std::cout << player.getPlayerName() << "'s Turn " << std::endl;
-    if(choice_ == 1){
-      std::cout << "Please enter a number between 1 and 7: ";
-      std::cin >> dropChoice;
-    } else if(choice_ == 2){
-      srand(time(nullptr));
-      dropChoice = rand()%7 + 1; 
-      sleep(2); 
-    }
+
+    wayOfPlaying();
+
     player.increaseNumberOfMoves();
     std::cout << "Number of moves of player " << player.getPlayerName() << " is " << +player.numberOfMoves() << "." << std::endl;
 
-    while(board_[1][dropChoice] == 'X' || board_[1][dropChoice] == 'O'){
-      std::cout << "That row is full, please enter a new row: ";
-      if(choice_ == 1){
-        std::cout << "That row is full, please enter a new row: " << std::endl;
-        std::cin >> dropChoice;
-      } else if (choice_ == 2){
-        srand(time(nullptr));
-        dropChoice = rand()%7 + 1;
-      }
-    }
+    checkFullRow(); 
   } while(dropChoice < 1 || dropChoice > 7);
   return dropChoice;
 }
@@ -128,7 +144,13 @@ void Board::displayMenu(){
   std::cout << "Type your choice of game: " << std::endl;
   std::cout << "Both human players (1)" << std::endl;
   std::cout << "Both random players (2)" << std::endl;
+  std::cout << "Human vs Machine (3)" << std::endl;
   std::cout << "======================================" << std::endl;
   std::cout << "Choice: ";
   std::cin >> choice_;
+}
+
+
+void minMax(unsigned int depth, int alpha, int beta, unsigned int p){
+
 }

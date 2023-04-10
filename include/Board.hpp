@@ -22,6 +22,7 @@ class Board {
   }
   inline uint_fast8_t numberOfMoves(){ return sumOfMoves_; }
   inline int getChoice(){ return choice_; }
+  void minMax(unsigned int, int, int, unsigned int);
 
   private:
   std::vector<std::vector<char>> board_;
