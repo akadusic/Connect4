@@ -22,26 +22,49 @@ int main(){
 	int trueWidth = 7; 
 	int trueLength = 6; 
 	int dropChoice, win, full, again;
+  string nameOfPlayer;
+  
+  auto setPlayer = [&](const string&& which, Player& player){
+    if(which == "first"){
+      cout << "Player One please enter your name: ";
+      player.setId('X');
+    } else {
+      cout << "Player Two please enter your name: ";
+      player.setId('O');
+    }
+    cin >> nameOfPlayer;
+    player.setName(nameOfPlayer);
+  };
+
+  auto setRandomPlayer = [&](const string&& which, Player& player){
+    if(which == "first"){
+      player.setName("Player1");
+      player.setId('X');
+    } else {
+      player.setId('O');
+      player.setName("Player2");
+    }
+  };
+
+  auto gameplay = [&]{
+    if(board.getChoice() == 1){
+      setPlayer("first", playerOne);
+      setPlayer("second", playerTwo);
+    } else if(board.getChoice() == 2){
+      setRandomPlayer("first", playerOne);
+      setRandomPlayer("second", playerTwo);
+    } else if(board.getChoice() == 3){
+      setPlayer("first", playerOne);
+      setRandomPlayer("second", playerTwo);
+    } else{
+      cout << "Something is wrong!" << endl;
+    }
+  };
 
 	cout << "Let's Play Connect 4" << endl << endl;
   board.displayMenu();
 
-  if(board.getChoice() == 1){
-    setPlayers(playerOne, playerTwo);
-  } else if(board.getChoice() == 2){
-    playerOne.setName("Player1");
-    playerTwo.setName("Player2");
-    playerOne.setId('X');
-    playerTwo.setId('O');
-  } else if(board.getChoice() == 3){
-    cout << "Player One please enter your name: ";
-    string playerName;
-    cin >> playerName;
-    playerOne.setId('X');
-    playerTwo.setName("Machine");
-    playerTwo.setId('O');
-  }
-  
+  gameplay();
 
 	full = 0;
 	win = 0;
