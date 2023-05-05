@@ -164,18 +164,19 @@ void Board::displayMenu(){
 int Board::minMax(unsigned int depth, bool maxPlayer, Player& player){
   auto isValidMove = [&, this](int column){
     bool result{false};
-    for(auto i = 1; i <= ROWS; ++i){
-      bool result = (board_[i][column] == '*');
-    }
+    for(auto i = ROWS-1; i != 0; --i){
+      result = (board_[i][column] == '*');
+    } 
     return result;
   };
 
   int result{0};
 
-  std::cout << "MinMax called!" << std::endl;
   if(depth == MAX_DEPTH){
     std::cout << "Base case called!" << std::endl;
-    return calculateScore(player);
+    int result = calculateScore(player);
+    std::cout << "Result in base func: " << result << std::endl;
+    return result;
   } 
   
   if(maxPlayer){
@@ -184,7 +185,8 @@ int Board::minMax(unsigned int depth, bool maxPlayer, Player& player){
       std::cout << "Before if!" << std::endl;
       if(isValidMove(col)){
         std::cout << "Depth is: " << depth << std::endl;
-        int score = minMax(depth + 1, false, player);
+        int newDepth = depth + 1;
+        int score = minMax(newDepth, false, player);
         result = std::max(result, score);
         std::cout << "Result in max is: " << result << std::endl;
       } 
@@ -194,8 +196,8 @@ int Board::minMax(unsigned int depth, bool maxPlayer, Player& player){
     std::cout << "Min called: " << std::endl;
     for(auto col{0}; col < COLS; ++col){
       if(isValidMove(col)){
-        
-        int score = minMax(depth + 1, true, player);
+        int newDepth = depth + 1; 
+        int score = minMax(newDepth, true, player);
         result = std::min(result, score);
         std::cout << "Result in min is: " << result << std::endl;
       }
