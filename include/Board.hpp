@@ -3,11 +3,16 @@
 #include <Player.hpp>
 #include <cstdint>
 #include <vector>
+#include <optional>
 
 namespace DataModels {
 
 class Board {
   public:
+  static constexpr int ROWS = 7;
+  static constexpr int COLS = 6;
+  static constexpr int MAX_DEPTH = 4;
+
   Board(int row, int column) : board_(row, std::vector<char>(column, '.')){}
   void checkBellow(Player&, const int);
   void displayBoard();
@@ -22,7 +27,8 @@ class Board {
   }
   inline uint_fast8_t numberOfMoves(){ return sumOfMoves_; }
   inline int getChoice(){ return choice_; }
-  void minMax(unsigned int, int, int, unsigned int);
+  int calculateScore(Player&); 
+  int minMax(unsigned int, bool, Player&);
 
   private:
   std::vector<std::vector<char>> board_;

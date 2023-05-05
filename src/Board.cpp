@@ -1,4 +1,5 @@
 #include <Board.hpp>
+#include <cstdint>
 #include <unistd.h>
 #include <cstdlib>
 #include <iostream>
@@ -96,10 +97,17 @@ int Board::restart(){
 
 int Board::dropPlayer(Player& player){
   int dropChoice{0};
-
+  
   auto humanPlayers = [&](){
     std::cout << "Please enter a number between 1 and 7: ";
     std::cin >> dropChoice;
+  };
+  
+  // ovdje napraviti lambdu za minimax poziv funkcije
+  
+  auto minimax = [&]{
+   dropChoice = minMax(2, true, player);
+   std::cout << "Drop choice is: " << dropChoice << std::endl;
   };
 
   auto randomPlayers = [&]{
@@ -117,11 +125,12 @@ int Board::dropPlayer(Player& player){
     if(choice_ == 1) humanPlayers();
     else if(choice_ == 2) randomPlayers();
     else if(choice_ == 3) humanVsMachine();
+    else if(choice_ == 4) minimax();
   };
 
   auto checkFullRow = [&]{
     while(board_[1][dropChoice] == 'X' || board_[1][dropChoice] == 'O'){
-      std::cout << "That row is full, please enter a new row: ";
+      std::cout << "That column is full, please enter a new column: " << std::endl;
       wayOfPlaying();
     }
   };
@@ -145,12 +154,88 @@ void Board::displayMenu(){
   std::cout << "Both human players (1)" << std::endl;
   std::cout << "Both random players (2)" << std::endl;
   std::cout << "Human vs Machine (3)" << std::endl;
+  std::cout << "Use MinMax algorithm (4)" << std::endl;
   std::cout << "======================================" << std::endl;
   std::cout << "Choice: ";
   std::cin >> choice_;
 }
 
 
-void minMax(unsigned int depth, int alpha, int beta, unsigned int p){
+int Board::minMax(unsigned int depth, bool maxPlayer, Player& player){
+  auto isValidMove = [&, this](int column){
+    bool result{false};
+    for(auto i = 1; i <= ROWS; ++i){
+      bool result = (board_[i][column] == '*');
+    }
+    return result;
+  };
 
+  int result{0};
+
+  std::cout << "MinMax called!" << std::endl;
+  if(depth == MAX_DEPTH){
+    std::cout << "Base case called!" << std::endl;
+    return calculateScore(player);
+  } 
+  
+  if(maxPlayer){
+    int maxScore = INT32_MIN;
+    for(auto col{0}; col < COLS; ++col){
+      std::cout << "Before if!" << std::endl;
+      if(isValidMove(col)){
+        std::cout << "Depth is: " << depth << std::endl;
+        int score = minMax(depth + 1, false, player);
+        result = std::max(result, score);
+        std::cout << "Result in max is: " << result << std::endl;
+      } 
+    }
+  } else {
+    int minScore = INT32_MAX;
+    std::cout << "Min called: " << std::endl;
+    for(auto col{0}; col < COLS; ++col){
+      if(isValidMove(col)){
+        
+        int score = minMax(depth + 1, true, player);
+        result = std::min(result, score);
+        std::cout << "Result in min is: " << result << std::endl;
+      }
+    }
+  }
+
+  return result;
 }
+
+int Board::calculateScore(Player& player) {
+    int score{0};
+    char XO = player.getPlayerId();
+    
+    for(auto i = 8; i >= 1; --i){
+      for(auto j = 7; j >= 1; --j){
+        if(board_[4][5] == XO){
+          score += 100;
+        }
+        if(board_[i][j] == XO && board_[i-1][j-1] == XO && board_[i-2][j-2] == XO) {
+          score += 100;
+        }
+
+        if(board_[i][j] == XO && board_[i][j-1] == XO) {
+          score += 10;
+        }
+
+        if(board_[i][j] == XO && board_[i-1][j] == XO && board_[i-2][j] == XO) {
+          score += 100;
+        }
+
+        if(board_[i][j] == XO && board_[i-1][j+1] == XO) {
+          score += 10;
+        }
+
+        if(board_[i][j] == XO && board_[i][j+1] == XO && board_[i][j+2] == XO) {
+          score += 100;
+        } 
+      }
+    }
+    
+    return score;
+}
+

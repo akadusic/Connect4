@@ -56,6 +56,9 @@ int main(){
     } else if(board.getChoice() == 3){
       setPlayer("first", playerOne);
       setRandomPlayer("second", playerTwo);
+    } else if(board.getChoice() == 4){
+      setRandomPlayer("first", playerOne);
+      setRandomPlayer("second", playerTwo);
     } else{
       cout << "Something is wrong!" << endl;
     }
@@ -73,6 +76,7 @@ int main(){
 
 	do{
     dropChoice = board.dropPlayer(playerOne);
+    std::cout << "Drop choice in main function!" << std::endl;
     board.checkBellow(playerOne, dropChoice);
     board.displayBoard();
     win = board.checkFour(playerOne);
@@ -84,7 +88,7 @@ int main(){
 				break;
 			}
 		}
-
+    
     dropChoice = board.dropPlayer(playerTwo);
     board.checkBellow(playerTwo, dropChoice);
     board.displayBoard();
