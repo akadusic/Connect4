@@ -109,7 +109,8 @@ int Board::dropPlayer(Player& player){
   // ovdje napraviti lambdu za minimax poziv funkcije
   
   auto minimax = [&]{
-   dropChoice = minMax(2, true, player);
+   dropChoice = findBestMove(player);
+   std::clog << "Minimax returns: " << dropChoice << std::endl;
    sleep(2);
   };
 
@@ -199,69 +200,123 @@ void Board::displayMenu(){
 
 int Board::minMax(unsigned int depth, bool maximizingPlayer, Player& play) {
    auto id = play.getPlayerId(); 
-   int nextMove = calculateScore(play);
-
-    if (depth == MAX_DEPTH) {
-        return nextMove;
+   auto possiblePositions = checkPositions();
+  
+    if (depth == MAX_DEPTH || fullBoard()) {
+        return calculateScore(play);
     }
 
     if (maximizingPlayer) {
         int maxScore = INT32_MIN;
         // std::clog << "Maximazing called!" << "\n";
-        for (int i = 0; i < board_.size(); i++) {
-            for (int j = 0; j < board_[i].size(); j++) {
-                if (board_[i][j] == '*') {
-                    board_[i][j] = id;
+        auto bestMove = -1;
+        for (auto [col, row] : possiblePositions) {
+                if (board_[row][col] == '*') {
+                    board_[row][col] = id;
                     int currScore = minMax(depth + 1, false, play);
                     maxScore = std::max(maxScore, currScore);
-                    board_[i][j] = '*';
+                    board_[row][col] = '*';
                 }
-            }
         }
         return maxScore;
     } else {
         int minScore = INT32_MAX;
         char opponent = (id == 'X') ? 'O' : 'X';
         // std::clog << "Minimizing called!" << "\n";
-        for (int i = 0; i < board_.size(); i++) {
-            for (int j = 0; j < board_[i].size(); j++) {
-                if (board_[i][j] == '*') {
-                    board_[i][j] = opponent;
+        auto bestMove = -1;
+        for (auto& [col, row] : possiblePositions) {
+                if (board_[row][col] == '*') {
+                    board_[row][col] = opponent;
                     int currScore = minMax(depth + 1, true, play);
                     minScore = std::min(minScore, currScore);
-                    board_[i][j] = '*';
+                    board_[row][col] = '*';
                 }
-            }
         }
         return minScore;
     } 
 }
 
 int Board::calculateScore(Player& play) {
-    int max_score = -1;
-    int max_col = -1;
-    auto player = play.getPlayerId();
-
-    // Check rows for four in a row
-    for (int row = 0; row < ROWS-1; row++) {
-        for (int col = 0; col < COLS - 4; col++) {
-            int count = 0;
-            for (int i = 0; i < 4; i++) {
-                if (board_[row][col + i] == player) {
-                    count++;
+   int score = 0;
+   auto player = play.getPlayerId();
+    
+    // Check horizontal rows
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 4; j++) {
+            int count2 = 0, count3 = 0, count4 = 0;
+            for (int k = 0; k < 4; k++) {
+                if (board_[i][j + k] == player) {
+                    if (k < 2) {
+                        count2++;
+                    } else if (k < 3) {
+                        count3++;
+                    } else {
+                        count4++;
+                    }
                 }
             }
-            if (count > 0) {
-                int score = count * count;
-                if (score > max_score) {
-                    max_score = score;
-                    max_col = col;
-                }
-            }
+            score += count2 * 2 + count3 * 4 + count4 * 16;
         }
     }
-    // std::clog << "Max col is " << max_col + 3 << "\n";
-    return 2;
+
+    // Check vertical rows
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 7; j++) {
+            int count2 = 0, count3 = 0, count4 = 0;
+            for (int k = 0; k < 4; k++) {
+                if (board_[i + k][j] == player) {
+                    if (k < 2) {
+                        count2++;
+                    } else if (k < 3) {
+                        count3++;
+                    } else {
+                        count4++;
+                    }
+                }
+            }
+            score += count2 * 2 + count3 * 4 + count4 * 16;
+        }
+    }
+
+    // Check diagonal (positive slope) rows
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 4; j++) {
+            int count2 = 0, count3 = 0, count4 = 0;
+            for (int k = 0; k < 4; k++) {
+                if (board_[i + k][j + k] == player) {
+                    if (k < 2) {
+                        count2++;
+                    } else if (k < 3) {
+                        count3++;
+                    } else {
+                        count4++;
+                    }
+                }
+            }
+            score += count2 * 2 + count3 * 4 + count4 * 16;
+        }
+    }
+
+    // Check diagonal (negative slope) rows
+    for (int i = 3; i < 6; i++) {
+        for (int j = 0; j < 4; j++) {
+            int count2 = 0, count3 = 0, count4 = 0;
+            for (int k = 0; k < 4; k++) {
+                if (board_[i - k][j + k] == player) {
+                    if (k < 2) {
+                        count2++;
+                    } else if (k < 3) {
+                        count3++;
+                    } else {
+                        count4++;
+                    }
+                }
+            }
+            score += count2 * 2 + count3 * 4 + count4;
+        }
+    }
+    // std::clog << "Score is in function: " << score << "\n";
+    return score;
 }
 
 std::unordered_map<unsigned, unsigned> Board::checkPositions(){
@@ -271,13 +326,35 @@ std::unordered_map<unsigned, unsigned> Board::checkPositions(){
     if(possiblePositions_.size() != 7){
       for(auto col{1}; col <= COLS; ++col){
         if(board_[row][col] == '*'){
-          auto pair = std::make_pair(row, col);
           possiblePositions_.insert(std::make_pair(col, row));
-          std::cout << pair.first << pair.second;
         }
      }
     }
-    std::cout << std::endl;
   }
   return possiblePositions_;
+}
+
+int Board::findBestMove(Player& player){
+  int bestMove = -1;  
+  auto bestScore = 0;
+  auto playerId = player.getPlayerId(); 
+  auto possiblePositions = checkPositions();
+
+  for(auto& [col, row] : possiblePositions){
+      if(board_[row][col] == '*'){
+        board_[row][col] = playerId;
+
+        auto score = minMax(2, true, player);
+        
+        std::clog << "Minimax values is: " << score << "\n";
+
+        board_[row][col] = '*';
+
+        if(score > bestScore){
+          bestScore = score;
+          bestMove = col;
+        }
+      }
+  } 
+  return bestMove;
 }

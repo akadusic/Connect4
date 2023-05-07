@@ -31,6 +31,7 @@ class Board {
   int calculateScore(Player&); 
   int minMax(unsigned int, bool, Player&);
   std::unordered_map<unsigned, unsigned> checkPositions();
+  int findBestMove(Player&);
 
   private:
   std::vector<std::vector<char>> board_;
