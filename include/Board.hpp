@@ -28,7 +28,7 @@ class Board {
   }
   inline uint_fast8_t numberOfMoves(){ return sumOfMoves_; }
   inline int getChoice(){ return choice_; }
-  int calculateScore(Player&); 
+  int calculateScore(Player&, const std::unordered_map<unsigned, unsigned>&); 
   int minMax(unsigned int, bool, Player&);
   std::unordered_map<unsigned, unsigned> checkPositions();
   int findBestMove(Player&);

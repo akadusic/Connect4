@@ -171,46 +171,12 @@ void Board::displayMenu(){
   std::cin >> choice_;
 }
 
-
-/* int Board::minMax(unsigned int depth, bool maxPlayer, Player& player){
-  // first column, then row in result
-  auto possiblePositions = checkPositions();
-  
-  if(depth == MAX_DEPTH){
-    std::cout << "Base case called!" << std::endl;
-    int result = calculateScore(player);
-    std::cout << "Result in base func: " << result << std::endl;
-    return result;
-  } 
-  
-  if(maxPlayer){
-    int maxScore = INT32_MIN;
-    for(auto elem : possiblePositions){
-      std::cout << "Before if!" << std::endl;
-      std::cout << "Depth is: " << depth << std::endl;
-      int newDepth = depth + 1;
-      int score = minMax(newDepth, false, player);
-      maxScore = std::max(maxScore, score);
-    }
-    return maxScore;
-  } else {
-    int minScore = INT32_MAX;
-    std::cout << "Min called: " << std::endl;
-    for(auto elem : possiblePositions){
-        int newDepth = depth + 1; 
-        int score = minMax(newDepth, true, player);
-        minScore = std::min(minScore, score);
-    }
-    return minScore;
-  }
-} */
-
 int Board::minMax(unsigned int depth, bool maximizingPlayer, Player& play) {
    auto id = play.getPlayerId(); 
    auto possiblePositions = checkPositions();
   
     if (depth == MAX_DEPTH || fullBoard()) {
-        return calculateScore(play);
+        return calculateScore(play, possiblePositions);
     }
 
     if (maximizingPlayer) {
@@ -243,16 +209,68 @@ int Board::minMax(unsigned int depth, bool maximizingPlayer, Player& play) {
     } 
 }
 
-int Board::calculateScore(Player& play) {
-   int score = 0;
-   auto player = play.getPlayerId();
-    
-    // Check horizontal rows
-    for (int i = 0; i < 6; i++) {
-        for (int j = 0; j < 4; j++) {
+int Board::calculateScore(Player& play, const std::unordered_map<unsigned, unsigned>& possibleMoves) {
+    int score = 0;
+    auto player = play.getPlayerId();
+
+    for (const auto& [col, row] : possibleMoves) {
+
+        // Check horizontal row
+        if (col < 4) {
             int count2 = 0, count3 = 0, count4 = 0;
             for (int k = 0; k < 4; k++) {
-                if (board_[i][j + k] == player) {
+                if (board_[row][col + k] == player) {
+                    if (k < 2) {
+                        count2++;
+                    } else if (k < 3) {
+                        count3++;
+                    } else {
+                        count4++;
+                    }
+                }
+            }
+            score += count2 * 2 + count3 * 4 + count4 * 16;
+        }
+
+        // Check vertical row
+        if (row < 3) {
+            int count2 = 0, count3 = 0, count4 = 0;
+            for (int k = 0; k < 4; k++) {
+                if (board_[row + k][col] == player) {
+                    if (k < 2) {
+                        count2++;
+                    } else if (k < 3) {
+                        count3++;
+                    } else {
+                        count4++;
+                    }
+                }
+            }
+            score += count2 * 2 + count3 * 4 + count4 * 16;
+        }
+
+        // Check diagonal (positive slope) row
+        if (row < 3 && col < 4) {
+            int count2 = 0, count3 = 0, count4 = 0;
+            for (int k = 0; k < 4; k++) {
+                if (board_[row + k][col + k] == player) {
+                    if (k < 2) {
+                        count2++;
+                    } else if (k < 3) {
+                        count3++;
+                    } else {
+                        count4++;
+                    }
+                }
+            }
+            score += count2 * 2 + count3 * 4 + count4 * 16;
+        }
+
+        // Check diagonal (negative slope) row
+        if (row >= 3 && col < 4) {
+            int count2 = 0, count3 = 0, count4 = 0;
+            for (int k = 0; k < 4; k++) {
+                if (board_[row - k][col + k] == player) {
                     if (k < 2) {
                         count2++;
                     } else if (k < 3) {
@@ -266,65 +284,9 @@ int Board::calculateScore(Player& play) {
         }
     }
 
-    // Check vertical rows
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 7; j++) {
-            int count2 = 0, count3 = 0, count4 = 0;
-            for (int k = 0; k < 4; k++) {
-                if (board_[i + k][j] == player) {
-                    if (k < 2) {
-                        count2++;
-                    } else if (k < 3) {
-                        count3++;
-                    } else {
-                        count4++;
-                    }
-                }
-            }
-            score += count2 * 2 + count3 * 4 + count4 * 16;
-        }
-    }
-
-    // Check diagonal (positive slope) rows
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 4; j++) {
-            int count2 = 0, count3 = 0, count4 = 0;
-            for (int k = 0; k < 4; k++) {
-                if (board_[i + k][j + k] == player) {
-                    if (k < 2) {
-                        count2++;
-                    } else if (k < 3) {
-                        count3++;
-                    } else {
-                        count4++;
-                    }
-                }
-            }
-            score += count2 * 2 + count3 * 4 + count4 * 16;
-        }
-    }
-
-    // Check diagonal (negative slope) rows
-    for (int i = 3; i < 6; i++) {
-        for (int j = 0; j < 4; j++) {
-            int count2 = 0, count3 = 0, count4 = 0;
-            for (int k = 0; k < 4; k++) {
-                if (board_[i - k][j + k] == player) {
-                    if (k < 2) {
-                        count2++;
-                    } else if (k < 3) {
-                        count3++;
-                    } else {
-                        count4++;
-                    }
-                }
-            }
-            score += count2 * 2 + count3 * 4 + count4;
-        }
-    } 
-    // std::clog << "Score is in function: " << score << "\n";
     return score;
 }
+
 
 std::unordered_map<unsigned, unsigned> Board::checkPositions(){
   // In this function I checked possible values for game.
