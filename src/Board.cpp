@@ -3,6 +3,9 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <iostream>
+#include <unordered_map>
+#include <algorithm>
+#include <utility>
 
 using namespace DataModels;
 
@@ -107,7 +110,7 @@ int Board::dropPlayer(Player& player){
   
   auto minimax = [&]{
    dropChoice = minMax(2, true, player);
-   std::cout << "Drop choice is: " << dropChoice << std::endl;
+   sleep(2);
   };
 
   auto randomPlayers = [&]{
@@ -161,17 +164,10 @@ void Board::displayMenu(){
 }
 
 
-int Board::minMax(unsigned int depth, bool maxPlayer, Player& player){
-  auto isValidMove = [&, this](int column){
-    bool result{false};
-    for(auto i = ROWS-1; i != 0; --i){
-      result = (board_[i][column] == '*');
-    } 
-    return result;
-  };
-
-  int result{0};
-
+/* int Board::minMax(unsigned int depth, bool maxPlayer, Player& player){
+  // first column, then row in result
+  auto possiblePositions = checkPositions();
+  
   if(depth == MAX_DEPTH){
     std::cout << "Base case called!" << std::endl;
     int result = calculateScore(player);
@@ -181,63 +177,107 @@ int Board::minMax(unsigned int depth, bool maxPlayer, Player& player){
   
   if(maxPlayer){
     int maxScore = INT32_MIN;
-    for(auto col{0}; col < COLS; ++col){
+    for(auto elem : possiblePositions){
       std::cout << "Before if!" << std::endl;
-      if(isValidMove(col)){
-        std::cout << "Depth is: " << depth << std::endl;
-        int newDepth = depth + 1;
-        int score = minMax(newDepth, false, player);
-        result = std::max(result, score);
-        std::cout << "Result in max is: " << result << std::endl;
-      } 
+      std::cout << "Depth is: " << depth << std::endl;
+      int newDepth = depth + 1;
+      int score = minMax(newDepth, false, player);
+      maxScore = std::max(maxScore, score);
     }
+    return maxScore;
   } else {
     int minScore = INT32_MAX;
     std::cout << "Min called: " << std::endl;
-    for(auto col{0}; col < COLS; ++col){
-      if(isValidMove(col)){
+    for(auto elem : possiblePositions){
         int newDepth = depth + 1; 
         int score = minMax(newDepth, true, player);
-        result = std::min(result, score);
-        std::cout << "Result in min is: " << result << std::endl;
-      }
+        minScore = std::min(minScore, score);
     }
+    return minScore;
   }
+} */
 
-  return result;
-}
+int Board::minMax(unsigned int depth, bool maximizingPlayer, Player& play) {
+   auto id = play.getPlayerId(); 
+   int nextMove = calculateScore(play);
 
-int Board::calculateScore(Player& player) {
-    int score{0};
-    char XO = player.getPlayerId();
-    
-    for(auto i = 8; i >= 1; --i){
-      for(auto j = 7; j >= 1; --j){
-        if(board_[4][5] == XO){
-          score += 100;
-        }
-        if(board_[i][j] == XO && board_[i-1][j-1] == XO && board_[i-2][j-2] == XO) {
-          score += 100;
-        }
-
-        if(board_[i][j] == XO && board_[i][j-1] == XO) {
-          score += 10;
-        }
-
-        if(board_[i][j] == XO && board_[i-1][j] == XO && board_[i-2][j] == XO) {
-          score += 100;
-        }
-
-        if(board_[i][j] == XO && board_[i-1][j+1] == XO) {
-          score += 10;
-        }
-
-        if(board_[i][j] == XO && board_[i][j+1] == XO && board_[i][j+2] == XO) {
-          score += 100;
-        } 
-      }
+    if (depth == MAX_DEPTH) {
+        return nextMove;
     }
-    
-    return score;
+
+    if (maximizingPlayer) {
+        int maxScore = INT32_MIN;
+        // std::clog << "Maximazing called!" << "\n";
+        for (int i = 0; i < board_.size(); i++) {
+            for (int j = 0; j < board_[i].size(); j++) {
+                if (board_[i][j] == '*') {
+                    board_[i][j] = id;
+                    int currScore = minMax(depth + 1, false, play);
+                    maxScore = std::max(maxScore, currScore);
+                    board_[i][j] = '*';
+                }
+            }
+        }
+        return maxScore;
+    } else {
+        int minScore = INT32_MAX;
+        char opponent = (id == 'X') ? 'O' : 'X';
+        // std::clog << "Minimizing called!" << "\n";
+        for (int i = 0; i < board_.size(); i++) {
+            for (int j = 0; j < board_[i].size(); j++) {
+                if (board_[i][j] == '*') {
+                    board_[i][j] = opponent;
+                    int currScore = minMax(depth + 1, true, play);
+                    minScore = std::min(minScore, currScore);
+                    board_[i][j] = '*';
+                }
+            }
+        }
+        return minScore;
+    } 
 }
 
+int Board::calculateScore(Player& play) {
+    int max_score = -1;
+    int max_col = -1;
+    auto player = play.getPlayerId();
+
+    // Check rows for four in a row
+    for (int row = 0; row < ROWS-1; row++) {
+        for (int col = 0; col < COLS - 4; col++) {
+            int count = 0;
+            for (int i = 0; i < 4; i++) {
+                if (board_[row][col + i] == player) {
+                    count++;
+                }
+            }
+            if (count > 0) {
+                int score = count * count;
+                if (score > max_score) {
+                    max_score = score;
+                    max_col = col;
+                }
+            }
+        }
+    }
+    // std::clog << "Max col is " << max_col + 3 << "\n";
+    return 2;
+}
+
+std::unordered_map<unsigned, unsigned> Board::checkPositions(){
+  // In this function I checked possible values for game.
+  possiblePositions_.clear();
+  for(auto row{ROWS}; row >= 1; --row){
+    if(possiblePositions_.size() != 7){
+      for(auto col{1}; col <= COLS; ++col){
+        if(board_[row][col] == '*'){
+          auto pair = std::make_pair(row, col);
+          possiblePositions_.insert(std::make_pair(col, row));
+          std::cout << pair.first << pair.second;
+        }
+     }
+    }
+    std::cout << std::endl;
+  }
+  return possiblePositions_;
+}

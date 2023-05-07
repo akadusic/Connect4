@@ -4,13 +4,14 @@
 #include <cstdint>
 #include <vector>
 #include <optional>
+#include <unordered_map>
 
 namespace DataModels {
 
 class Board {
   public:
-  static constexpr int ROWS = 7;
-  static constexpr int COLS = 6;
+  static constexpr int ROWS = 6;
+  static constexpr int COLS = 7;
   static constexpr int MAX_DEPTH = 4;
 
   Board(int row, int column) : board_(row, std::vector<char>(column, '.')){}
@@ -29,10 +30,12 @@ class Board {
   inline int getChoice(){ return choice_; }
   int calculateScore(Player&); 
   int minMax(unsigned int, bool, Player&);
+  std::unordered_map<unsigned, unsigned> checkPositions();
 
   private:
   std::vector<std::vector<char>> board_;
   uint_fast8_t sumOfMoves_{0};
   int choice_{0};
+  std::unordered_map<unsigned, unsigned> possiblePositions_; 
 };
 } /* DataModels */
