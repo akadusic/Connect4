@@ -59,7 +59,11 @@ int main(){
     } else if(board.getChoice() == 4){
       setRandomPlayer("first", playerOne);
       setRandomPlayer("second", playerTwo);
-    } else{
+    } else if(board.getChoice() == 5){
+      setPlayer("first", playerOne);
+      setRandomPlayer("second", playerTwo);
+    } 
+    else{
       cout << "Something is wrong!" << endl;
     }
   };

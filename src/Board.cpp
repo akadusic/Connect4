@@ -113,6 +113,11 @@ int Board::dropPlayer(Player& player){
    std::clog << "Minimax returns: " << dropChoice << std::endl;
    sleep(2);
   };
+  
+  auto minmaxHuman = [&]{
+    if(player.getPlayerId() == 'X') humanPlayers();
+    else minimax();
+  };
 
   auto randomPlayers = [&]{
     srand(time(nullptr));
@@ -130,6 +135,7 @@ int Board::dropPlayer(Player& player){
     else if(choice_ == 2) randomPlayers();
     else if(choice_ == 3) humanVsMachine();
     else if(choice_ == 4) minimax();
+    else if(choice_ == 5) minmaxHuman();
   };
 
   auto checkFullRow = [&]{
@@ -159,6 +165,7 @@ void Board::displayMenu(){
   std::cout << "Both random players (2)" << std::endl;
   std::cout << "Human vs Machine (3)" << std::endl;
   std::cout << "Use MinMax algorithm (4)" << std::endl;
+  std::cout << "Human vs minimax (5)" << "\n";
   std::cout << "======================================" << std::endl;
   std::cout << "Choice: ";
   std::cin >> choice_;
@@ -314,7 +321,7 @@ int Board::calculateScore(Player& play) {
             }
             score += count2 * 2 + count3 * 4 + count4;
         }
-    }
+    } 
     // std::clog << "Score is in function: " << score << "\n";
     return score;
 }
