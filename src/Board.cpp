@@ -209,220 +209,89 @@ int Board::minMax(unsigned int depth, bool maximizingPlayer, Player& play) {
     } 
 }
 
-// int Board::calculateScore(Player& player, const std::unordered_map<unsigned, unsigned>& possibleMoves) {
-    /* int score = 0;
-    auto blockScore = 0;
-    auto player = play.getPlayerId();
-    auto opponent = (player == 'X') ? 'O' : 'X';
-
-    for (int col = 0; col < COLS; col++) {
-        if (board_[0][col] == '*') {
-            int delta = std::abs(col - COLS / 2);
-            score += 10 - delta;
-        }
+int Board::minMaxAlphaBeta(unsigned int depth, bool maxPlayer, Player& player, int alpha, int beta){
+   auto id = player.getPlayerId(); 
+   auto possiblePositions = checkPositions();
+  
+    if (depth == MAX_DEPTH || fullBoard()) {
+        return calculateScore(player, possiblePositions);
     }
 
-    for (const auto& [col, row] : possibleMoves) {
-        // Check horizontal row
-        if (col < 4) {
-            int count2 = 0, count3 = 0, count4 = 0;
-            auto block2 = 0, block3 = 0, block4 = 0;
-            for (int k = 0; k < 4; k++) {
-                if (board_[row][col + k] == player) {
-                    if (k < 3) {
-                        count2++;
-                    } else if (k < 4) {
-                        count3++;
-                    } else if (k < 5){
-                        count4++;
+    if (maxPlayer) {
+        int maxScore = INT32_MIN;
+        // std::clog << "Maximazing called!" << "\n";
+        auto bestMove = -1;
+        for (auto [col, row] : possiblePositions) {
+                if (board_[row][col] == '*') {
+                    board_[row][col] = id;
+                    int currScore = minMax(depth + 1, false, player);
+                    maxScore = std::max(maxScore, currScore);
+                    board_[row][col] = '*';
+                    alpha = std::max(alpha, currScore);
+                    if(beta <= alpha){
+                      break;
                     }
-                }  else if(board_[row][col + k] == opponent){
-                  if(k < 2){
-                    block2++;
-                  } else if(k < 3){
-                    block3++;
-                  } else if (k < 4){
-                    block4++;
-                  }
                 }
-            }
-            if(count2 == 2){
-              score += 20;
-            } else if(count3 == 3){
-              score += 200;
-            } else if(count4 == 4) {
-              score += 2000;
-            }
-            if(block2 == 2){
-              blockScore -= 20; 
-            } else if(block3 == 3){
-              blockScore -= 200;
-            } else if (blockScore == 4){
-              blockScore -= 2000;
-            }
         }
-
-        // Check vertical row
-        if (row < 3) {
-            int count2 = 0, count3 = 0, count4 = 0;
-            auto block2 = 0, block3 = 0, block4 = 0;
-            for (int k = 0; k < 4; k++) {
-                if (board_[row + k][col] == player) {
-                    if (k < 2) {
-                        count2++;
-                    } else if (k < 3) {
-                        count3++;
-                    } else {
-                        count4++;
+        return maxScore;
+    } else {
+        int minScore = INT32_MAX;
+        char opponent = (id == 'X') ? 'O' : 'X';
+        // std::clog << "Minimizing called!" << "\n";
+        auto bestMove = -1;
+        for (auto& [col, row] : possiblePositions) {
+                if (board_[row][col] == '*') {
+                    board_[row][col] = opponent;
+                    int currScore = minMax(depth + 1, true, player);
+                    minScore = std::min(minScore, currScore);
+                    board_[row][col] = '*';
+                    beta = std::min(beta, currScore);
+                    if(beta <= alpha){
+                      break;
                     }
-                } else if(board_[row + k][col] == opponent){
-                  if(k < 2){
-                    block2++;
-                  } else if(k < 3){
-                    block3++;
-                  } else {
-                    block4++;
-                  }
                 }
-            }
-            if(count2 == 2){
-              score += 20;
-            } else if(count3 == 3){
-              score += 200;
-            } else {
-              score += 2000;
-            }
-            
-            if(block2 == 2){
-              blockScore -= 20;
-            } else if(block3 == 3){
-              blockScore -= 200;
-            } else {
-              blockScore -= 2000;
-            }
         }
+        return minScore;
+    } 
+}
 
-        // Check diagonal (positive slope) row
-        if (row < 3 && col < 4) {
-            int count2 = 0, count3 = 0, count4 = 0;
-            auto block2 = 0, block3 = 0, block4 = 0;
-            for (int k = 0; k < 4; k++) {
-                if (board_[row + k][col + k] == player) {
-                    if (k < 2) {
-                        count2++;
-                    } else if (k < 3) {
-                        count3++;
-                    } else {
-                        count4++;
-                    }
-                } else if(board_[row + k][col + k] == opponent){
-                  if(k < 2){
-                    block2++;
-                  } else if(k < 3){
-                    block3++;
-                  } else {
-                    block4++;
-                  }
-                }
-            }
-            if(count2 == 2){
-              score += 20;
-            } else if(count3 == 3){
-              score += 200;
-            } else {
-              score += 2000;
-            }
-            if(block2 == 2){
-              blockScore -= 20;
-            } else if(block3 == 3){
-              blockScore -= 200;
-            } else {
-              blockScore -= 2000;
-            }
-        }
-
-        // Check diagonal (negative slope) row
-        if (row >= 3 && col < 4) {
-            int count2 = 0, count3 = 0, count4 = 0;
-            auto block2 = 0, block3 = 0, block4 = 0;
-            for (int k = 0; k < 4; k++) {
-                if (board_[row - k][col + k] == player) {
-                    if (k < 2) {
-                        count2++;
-                    } else if (k < 3) {
-                        count3++;
-                    } else {
-                        count4++;
-                    }
-                } // else if(board_[row - k][col - k] == opponent){
-                   if (k < 2){
-                    block2++;
-                  } else if(k < 3){
-                    block3++;
-                  } else {
-                    block4++;
-                  } */
-                // }
-            /* }
-            if(count2 == 2){
-              score += 20;
-            } else if(count3 == 3){
-              score += 200;
-            } else {
-              score += 2000;
-            } */
-            /* if(block2 == 2){
-              blockScore -= 20;
-            } else if(block3 == 3){
-              blockScore -= 200;
-            } else {
-              blockScore -= 2000;
-            } */
-        /* }
-    }
-
-    score -= blockScore;
-
-    return score; */   
-// }
-
-int Board::calculateScore(Player& play, const std::unordered_map<unsigned, unsigned>& possiblePositions) {
+int Board::calculateScore(Player& player, const std::unordered_map<unsigned, unsigned>& possibleMoves) {
     int score = 0;
-    // auto player = play.getPlayerId(); 
-    auto player = '*';
-    // Check for horizontal win
-    for (auto [col, row] : possiblePositions) {
-            if (board_[row][col] == player && board_[row][col+1] == player &&
-                board_[row][col+2] == player && board_[row][col+3] == player) {
-                score += 100;
+    auto blockScore = 0;
+    auto id = player.getPlayerId();
+    auto opponent = (id == 'X') ? 'O' : 'X';
+
+     for (int row = 0; row < ROWS; row++) {
+        for (int col = 0; col < COLS - 2; col++) {
+            int count = 0;
+            for (int k = 0; k < 4; k++) {
+                if (board_[row][col + k] == id) {
+                    count++;
+                } else if (board_[row][col + k] != '*') {
+                    count = 0;
+                    break;
+                }
             }
+            score += (count == 1) ? 10 : (count == 2) ? 20 : (count == 3) ? 500 : (count == 4) ? 10000 : 0;
+        }
     }
-    
-    // Check for vertical win
-    for (auto [col, row] : possiblePositions) {
-            if (board_[row][col] == player && board_[row+1][col] == player &&
-                board_[row+2][col] == player && board_[row+3][col] == player) {
-                score += 100;
+
+    for (int row = 0; row < ROWS - 2; row++) {
+        for (int col = 0; col < COLS; col++) {
+            int count = 0;
+            for (int k = 0; k < 4; k++) {
+                if (board_[row + k][col] == id) {
+                    count++;
+                } else if (board_[row + k][col] != '*') {
+                    count = 0;
+                    break;
+                }
             }
+            score += (count == 1) ? 10 : (count == 2) ? 20 : (count == 3) ? 500 : (count == 4) ? 10000 : 0;
+        }
     }
-    
-    // Check for diagonal win (top-left to bottom-right)
-    for (auto [col, row] : possiblePositions) {
-            if (board_[row][col] == player && board_[row+1][col+1] == player &&
-                board_[row+2][col+2] == player && board_[row+3][col+3] == player) {
-                score += 100;
-            }
-    }
-    
-    // Check for diagonal win (bottom-left to top-right)
-    for (auto [col, row] : possiblePositions) {
-            if (board_[row][col] == player && board_[row-1][col+1] == player &&
-                board_[row-2][col+2] == player && board_[row-3][col+3] == player) {
-                score += 100;
-            }
-    }
-    
-    return score;
+
+    return score;    
 }
 
 std::unordered_map<unsigned, unsigned> Board::checkPositions(){
