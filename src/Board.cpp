@@ -260,38 +260,93 @@ int Board::calculateScore(Player& player, const std::unordered_map<unsigned, uns
     auto blockScore = 0;
     auto id = player.getPlayerId();
     auto opponent = (id == 'X') ? 'O' : 'X';
+    auto middlIncremented{false};
 
-     for (int row = 0; row < ROWS; row++) {
+    for (int row = 0; row < ROWS; row++) {
+        if(board_[row][4] == id && !middlIncremented){
+          score += 100;
+          middlIncremented = true;
+        }
         for (int col = 0; col < COLS - 2; col++) {
             int count = 0;
+            auto opponentCount = 0;
             for (int k = 0; k < 4; k++) {
                 if (board_[row][col + k] == id) {
                     count++;
-                } else if (board_[row][col + k] != '*') {
-                    count = 0;
-                    break;
-                }
+                } else if(board_[row][col + k] == opponent){
+                    opponentCount++;
+                } 
             }
             score += (count == 1) ? 10 : (count == 2) ? 20 : (count == 3) ? 500 : (count == 4) ? 10000 : 0;
+            blockScore += (opponentCount == 1) ? 10 : (opponentCount == 2) ? 20 : (opponentCount == 3) ? 500 : (opponentCount == 4) ? 10000 : 0;
         }
     }
 
     for (int row = 0; row < ROWS - 2; row++) {
+        if(board_[row][4] == id){
+          score += 100;
+          middlIncremented = true;
+        }
         for (int col = 0; col < COLS; col++) {
             int count = 0;
+            auto opponentCount = 0;
             for (int k = 0; k < 4; k++) {
-                if (board_[row + k][col] == id) {
+                if (board_[row + k][col] == id && !middlIncremented) {
                     count++;
-                } else if (board_[row + k][col] != '*') {
-                    count = 0;
-                    break;
-                }
+                } else if (board_[row + k][col] == opponent){
+                    opponentCount++; 
+                } 
+            }
+            if(opponentCount == 3 && count == 0){
+              blockScore += 2000;
             }
             score += (count == 1) ? 10 : (count == 2) ? 20 : (count == 3) ? 500 : (count == 4) ? 10000 : 0;
+            blockScore += (opponentCount == 1) ? 10 : (opponentCount == 2) ? 20 : (opponentCount == 3) ? 500 : (opponentCount == 4) ? 10000 : 0;
         }
     }
 
-    return score;    
+    for (int row = 0; row < ROWS - 2; row++) {
+        for (int col = 0; col < COLS - 2; col++) {
+            if(col + 3 == 4 && board_[row][4] == id && !middlIncremented){
+                score += 100;
+                middlIncremented = true;
+            }
+            int count = 0;
+            auto opponentCount = 0;
+            for (int k = 0; k < 4; k++) {
+                if (board_[row + k][col + k] == id) {
+                    count++;
+                } else if (board_[row + k][col + k] == opponent){
+                    opponentCount++;
+                } 
+            }
+            score += (count == 1) ? 10 : (count == 2) ? 20 : (count == 3) ? 500 : (count == 4) ? 10000 : 0;
+            blockScore += (opponentCount == 1) ? 10 : (opponentCount == 2) ? 20 : (opponentCount == 3) ? 500 : (opponentCount == 4) ? 10000 : 0;
+        }
+    }
+
+   for (int row = 3; row < ROWS; row++) {
+        for (int col = 0; col < COLS - 2; col++) {
+            if(col + 3 == 4 && board_[row][4] == id && !middlIncremented){
+                score += 100;
+                middlIncremented = false;
+            } 
+            int count = 0;
+            auto opponentCount = 0;
+            for (int k = 0; k < 4; k++) {
+                if (board_[row - k][col + k] == id) {
+                    count++;
+                } else if(board_[row - k][col + k] == opponent){
+                    opponentCount++;
+                } 
+            }
+            score += (count == 1) ? 10 : (count == 2) ? 20 : (count == 4) ? 500 : (count == 4) ? 10000 : 0;
+            blockScore += (opponentCount == 1) ? 10 : (opponentCount == 2) ? 20 : (opponentCount == 3) ? 500 : (opponentCount == 4) ? 10000 : 0;
+        }
+   }
+
+   score += blockScore;
+   return score;    
 }
 
 std::unordered_map<unsigned, unsigned> Board::checkPositions(){
@@ -319,9 +374,9 @@ int Board::findBestMove(Player& player){
       if(board_[row][col] == '*'){
         board_[row][col] = playerId;
 
-        auto score = minMax(2, true, player);
-        
-        std::clog << "Minimax values is: " << score << "\n";
+        // auto score = minMax(0, true, player);
+        auto score = minMaxAlphaBeta(2, true, player, INT32_MIN, INT32_MAX); 
+        std::clog << "Minimax values is: " << score << " in column " << col << "\n";
 
         board_[row][col] = '*';
 
