@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <algorithm>
 #include <utility>
+#include <cmath>
+#include <vector>
 
 using namespace DataModels;
 
@@ -176,7 +178,7 @@ int Board::minMax(unsigned int depth, bool maximizingPlayer, Player& play) {
    auto possiblePositions = checkPositions();
   
     if (depth == MAX_DEPTH || fullBoard()) {
-        return calculateScore(play, possiblePositions);
+        return calculateScore(id, possiblePositions);
     }
 
     if (maximizingPlayer) {
@@ -214,7 +216,7 @@ int Board::minMaxAlphaBeta(unsigned int depth, bool maxPlayer, Player& player, i
    auto possiblePositions = checkPositions();
   
     if (depth == MAX_DEPTH || fullBoard()) {
-        return calculateScore(player, possiblePositions);
+        return calculateScore(id, possiblePositions);
     }
 
     if (maxPlayer) {
@@ -255,98 +257,130 @@ int Board::minMaxAlphaBeta(unsigned int depth, bool maxPlayer, Player& player, i
     } 
 }
 
-int Board::calculateScore(Player& player, const std::unordered_map<unsigned, unsigned>& possibleMoves) {
+int Board::calculateScore(const char id, const std::unordered_map<unsigned, unsigned>& possibleMoves) {
     int score = 0;
     auto blockScore = 0;
-    auto id = player.getPlayerId();
-    auto opponent = (id == 'X') ? 'O' : 'X';
     auto middlIncremented{false};
+    auto opponent = (id == 'X') ? 'O' : 'X';
 
-    for (int row = 0; row < ROWS; row++) {
-        if(board_[row][4] == id && !middlIncremented){
+    std::vector<int> helper;
+    for(auto row{ROWS}; row >= 1; --row){
+      helper.push_back(board_[row][4]);
+
+    }
+
+    auto countt = std::count(helper.begin(), helper.end(), id);
+    
+    score += countt * 3; 
+
+    for (int row = ROWS; row >= 1; --row) {
+        std::vector<char> els;
+        for (int col = 1; col <= COLS; col++) {
+            els.push_back(board_[row][col]); 
+        }
+
+        auto count = std::count(els.begin(), els.end(), id);
+        auto opponentCount = std::count(els.begin(), els.end(), opponent);
+        auto emptys = std::count(els.begin(), els.end(), '*');
+
+        if(count == 4){
           score += 100;
-          middlIncremented = true;
-        }
-        for (int col = 0; col < COLS - 2; col++) {
-            int count = 0;
-            auto opponentCount = 0;
-            for (int k = 0; k < 4; k++) {
-                if (board_[row][col + k] == id) {
-                    count++;
-                } else if(board_[row][col + k] == opponent){
-                    opponentCount++;
-                } 
-            }
-            score += (count == 1) ? 10 : (count == 2) ? 20 : (count == 3) ? 500 : (count == 4) ? 10000 : 0;
-            blockScore += (opponentCount == 1) ? 10 : (opponentCount == 2) ? 20 : (opponentCount == 3) ? 500 : (opponentCount == 4) ? 10000 : 0;
-        }
+        } else if(count == 3 && emptys == 1){
+          score += 5;
+        } else if(count == 2 && emptys == 2){
+          score += 2;
+        } 
+        
+        if (opponentCount == 3 && emptys == 1){
+          score -= 1000;
+        } 
     }
 
-    for (int row = 0; row < ROWS - 2; row++) {
-        if(board_[row][4] == id){
+    for (int col = 1; col <= COLS; ++col) {
+        std::vector<int> els;
+        for (int row = ROWS; row >= 1; --row) {
+          els.push_back(board_[row][col]);
+        }
+
+        auto count = std::count(els.begin(), els.end(), id);
+        auto opponentCount = std::count(els.begin(), els.end(), opponent);
+        auto emptys = std::count(els.begin(), els.end(), '*');
+        
+        if(count == 4){
           score += 100;
-          middlIncremented = true;
-        }
-        for (int col = 0; col < COLS; col++) {
-            int count = 0;
-            auto opponentCount = 0;
-            for (int k = 0; k < 4; k++) {
-                if (board_[row + k][col] == id && !middlIncremented) {
-                    count++;
-                } else if (board_[row + k][col] == opponent){
-                    opponentCount++; 
-                } 
-            }
-            if(opponentCount == 3 && count == 0){
-              blockScore += 2000;
-            }
-            score += (count == 1) ? 10 : (count == 2) ? 20 : (count == 3) ? 500 : (count == 4) ? 10000 : 0;
-            blockScore += (opponentCount == 1) ? 10 : (opponentCount == 2) ? 20 : (opponentCount == 3) ? 500 : (opponentCount == 4) ? 10000 : 0;
+        } else if(count == 3 && emptys == 1){
+          score += 5;
+        } else if(count == 2 && emptys == 2){
+          score += 2;
+        } 
+        
+        if (opponentCount == 3 && emptys == 1){
+          score -= 1000;
         }
     }
 
-    for (int row = 0; row < ROWS - 2; row++) {
-        for (int col = 0; col < COLS - 2; col++) {
-            if(col + 3 == 4 && board_[row][4] == id && !middlIncremented){
-                score += 100;
-                middlIncremented = true;
-            }
-            int count = 0;
-            auto opponentCount = 0;
-            for (int k = 0; k < 4; k++) {
-                if (board_[row + k][col + k] == id) {
-                    count++;
-                } else if (board_[row + k][col + k] == opponent){
-                    opponentCount++;
-                } 
-            }
-            score += (count == 1) ? 10 : (count == 2) ? 20 : (count == 3) ? 500 : (count == 4) ? 10000 : 0;
-            blockScore += (opponentCount == 1) ? 10 : (opponentCount == 2) ? 20 : (opponentCount == 3) ? 500 : (opponentCount == 4) ? 10000 : 0;
+
+    for (int row = ROWS-3; row >= 1; --row) {
+        std::vector<std::vector<int>> vecOfDiagonals;
+        std::vector<int> els;
+
+        for (int col = 1; col <= COLS-3; col++) {
+          for(auto i{0}; i < 4; ++i){
+            els.push_back(board_[row + i][col + i]);
+          }
+        }
+        vecOfDiagonals.emplace_back(els);
+        
+        for(const auto& el : vecOfDiagonals){
+          auto count = std::count(el.begin(), el.end(), id);
+          auto opponentCount = std::count(el.begin(), el.end(), opponent);
+          auto emptys = std::count(el.begin(), el.end(), '*');
+          
+          if(count == 4){
+            score += 100;
+          } else if(count == 3 && emptys == 1){
+            score += 5;
+          } else if(count == 2 && emptys == 2){
+            score += 2;
+          } 
+        
+          if (opponentCount == 3 && emptys == 1){
+            score -= 1000;
+          }
         }
     }
 
-   for (int row = 3; row < ROWS; row++) {
-        for (int col = 0; col < COLS - 2; col++) {
-            if(col + 3 == 4 && board_[row][4] == id && !middlIncremented){
-                score += 100;
-                middlIncremented = false;
-            } 
-            int count = 0;
-            auto opponentCount = 0;
-            for (int k = 0; k < 4; k++) {
-                if (board_[row - k][col + k] == id) {
-                    count++;
-                } else if(board_[row - k][col + k] == opponent){
-                    opponentCount++;
-                } 
-            }
-            score += (count == 1) ? 10 : (count == 2) ? 20 : (count == 4) ? 500 : (count == 4) ? 10000 : 0;
-            blockScore += (opponentCount == 1) ? 10 : (opponentCount == 2) ? 20 : (opponentCount == 3) ? 500 : (opponentCount == 4) ? 10000 : 0;
+   for (int row = ROWS-3; row >= 1; --row) {
+     std::vector<std::vector<int>> vecOfDiagonals; 
+     std::vector<int> els;
+
+     for (int col = COLS; col >= COLS - 3; --col) {
+        for(auto i{0}; i < 4; ++i){
+            els.push_back(board_[row + i][col - i]);
+          } 
+        }
+     vecOfDiagonals.push_back(els);
+
+    for(const auto& el : vecOfDiagonals){
+          auto count = std::count(el.begin(), el.end(), id);
+          auto opponentCount = std::count(el.begin(), el.end(), opponent);
+          auto emptys = std::count(el.begin(), el.end(), '*');
+          
+          if(count == 4){
+            score += 100;
+          } else if(count == 3 && emptys == 1){
+            score += 5;
+          } else if(count == 2 && emptys == 2){
+            score += 2;
+          } 
+        
+          if (opponentCount == 3 && emptys == 1){
+            score -= 1000;
+          }
         }
    }
 
-   score += blockScore;
-   return score;    
+   return std::abs(score);    
 }
 
 std::unordered_map<unsigned, unsigned> Board::checkPositions(){
@@ -366,7 +400,7 @@ std::unordered_map<unsigned, unsigned> Board::checkPositions(){
 
 int Board::findBestMove(Player& player){
   int bestMove = -1;  
-  auto bestScore = 0;
+  auto bestScore = INT32_MIN;
   auto playerId = player.getPlayerId(); 
   auto possiblePositions = checkPositions();
 
@@ -374,19 +408,19 @@ int Board::findBestMove(Player& player){
       if(board_[row][col] == '*'){
         board_[row][col] = playerId;
 
-        // auto score = minMax(0, true, player);
-        auto score = minMaxAlphaBeta(2, true, player, INT32_MIN, INT32_MAX); 
+        auto score = minMax(2, true, player); 
+
+        // auto score = minMaxAlphaBeta(0, true, player, INT8_MIN, INT8_MAX);
         std::clog << "Minimax values is: " << score << " in column " << col << "\n";
+        
 
         board_[row][col] = '*';
 
         if(score > bestScore){
-          std::clog << "Column is: " << col << "\n";
           bestScore = score;
           bestMove = col;
         }
       }
   }
-  std::cout << "Best score in find best move is: " << bestScore << "\n";
   return bestMove;
 }
