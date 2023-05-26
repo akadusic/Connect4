@@ -2,6 +2,7 @@
 
 #include <Player.hpp>
 #include <cstdint>
+#include <type_traits>
 #include <vector>
 #include <optional>
 #include <unordered_map>
@@ -35,6 +36,19 @@ class Board {
   int minMaxAlphaBeta(unsigned int, bool, Player&, int, int);
   std::unordered_map<unsigned, unsigned> checkPositions();
   int findBestMove(Player&);
+
+  /* template <typename T>
+  bool checkAcjecent(T&& value, const std::vector<int>& values){
+   if constexpr (std::is_same<T, int>::value && value == 2){
+      for(auto i{0}; i < values.size() - 1; ++i){
+        return values.at(i) == values.at(i + 1);
+      }
+   } else if constexpr(std::is_same<T, int>::value && value == 3){
+      for(auto i{0}; i < values.size() - 2; ++i){
+        return values.at(i) == values.at(i+1) && values.at(i) == values.at(i+2);
+      }
+   } 
+  } */
 
   private:
   std::vector<std::vector<char>> board_;

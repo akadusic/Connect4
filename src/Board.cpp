@@ -178,12 +178,12 @@ int Board::minMax(unsigned int depth, bool maximizingPlayer, Player& play) {
    auto possiblePositions = checkPositions();
   
     if (depth == MAX_DEPTH || fullBoard()) {
+        // return score_position(id);
         return calculateScore(id, possiblePositions);
     }
 
     if (maximizingPlayer) {
         int maxScore = INT32_MIN;
-        // std::clog << "Maximazing called!" << "\n";
         auto bestMove = -1;
         for (auto [col, row] : possiblePositions) {
                 if (board_[row][col] == '*') {
@@ -197,7 +197,6 @@ int Board::minMax(unsigned int depth, bool maximizingPlayer, Player& play) {
     } else {
         int minScore = INT32_MAX;
         char opponent = (id == 'X') ? 'O' : 'X';
-        // std::clog << "Minimizing called!" << "\n";
         auto bestMove = -1;
         for (auto& [col, row] : possiblePositions) {
                 if (board_[row][col] == '*') {
@@ -221,12 +220,11 @@ int Board::minMaxAlphaBeta(unsigned int depth, bool maxPlayer, Player& player, i
 
     if (maxPlayer) {
         int maxScore = INT32_MIN;
-        // std::clog << "Maximazing called!" << "\n";
         auto bestMove = -1;
         for (auto [col, row] : possiblePositions) {
                 if (board_[row][col] == '*') {
                     board_[row][col] = id;
-                    int currScore = minMax(depth + 1, false, player);
+                    int currScore = minMaxAlphaBeta(depth + 1, false, player, alpha, beta);
                     maxScore = std::max(maxScore, currScore);
                     board_[row][col] = '*';
                     alpha = std::max(alpha, currScore);
@@ -239,12 +237,11 @@ int Board::minMaxAlphaBeta(unsigned int depth, bool maxPlayer, Player& player, i
     } else {
         int minScore = INT32_MAX;
         char opponent = (id == 'X') ? 'O' : 'X';
-        // std::clog << "Minimizing called!" << "\n";
         auto bestMove = -1;
         for (auto& [col, row] : possiblePositions) {
                 if (board_[row][col] == '*') {
                     board_[row][col] = opponent;
-                    int currScore = minMax(depth + 1, true, player);
+                    int currScore = minMaxAlphaBeta(depth + 1, true, player, alpha, beta);
                     minScore = std::min(minScore, currScore);
                     board_[row][col] = '*';
                     beta = std::min(beta, currScore);
@@ -260,18 +257,34 @@ int Board::minMaxAlphaBeta(unsigned int depth, bool maxPlayer, Player& player, i
 int Board::calculateScore(const char id, const std::unordered_map<unsigned, unsigned>& possibleMoves) {
     int score = 0;
     auto blockScore = 0;
-    auto middlIncremented{false};
     auto opponent = (id == 'X') ? 'O' : 'X';
+
+    auto checkAdjacent = [](int size, const std::vector<char>& vec, const char player){
+      if(size == 2){
+        for(auto i{0}; i < vec.size() - 1; ++i){
+          if(vec.at(i) == vec.at(i+1) && vec.at(i) == player){
+            return true;
+          }
+        }
+      }
+      if(size == 3){
+        for(auto i{0}; i < vec.size() - 2; ++i){
+          if(vec.at(i) == vec.at(i+1) && vec.at(i) == vec.at(i+2) && vec.at(i) == player){
+            return true;
+          }
+        }
+      }
+      return false;
+    };
 
     std::vector<int> helper;
     for(auto row{ROWS}; row >= 1; --row){
       helper.push_back(board_[row][4]);
-
     }
 
     auto countt = std::count(helper.begin(), helper.end(), id);
     
-    score += countt * 3; 
+    score += countt * 5; 
 
     for (int row = ROWS; row >= 1; --row) {
         std::vector<char> els;
@@ -283,21 +296,29 @@ int Board::calculateScore(const char id, const std::unordered_map<unsigned, unsi
         auto opponentCount = std::count(els.begin(), els.end(), opponent);
         auto emptys = std::count(els.begin(), els.end(), '*');
 
-        if(count == 4){
+        bool twoexists = checkAdjacent(2, els, id);
+        bool threeexits = checkAdjacent(3, els, id);
+
+        bool oponnentThree = checkAdjacent(3, els, opponent);
+        bool oponnentTwo = checkAdjacent(2, els, opponent);
+
+        if(count){
           score += 100;
-        } else if(count == 3 && emptys == 1){
-          score += 5;
-        } else if(count == 2 && emptys == 2){
-          score += 2;
+        } else if(threeexits){
+          score += 50;
+        } else if(twoexists){
+          score += 20;
         } 
         
-        if (opponentCount == 3 && emptys == 1){
-          score -= 1000;
-        } 
+        if (oponnentThree){
+          score -= 70;
+        } else if (oponnentTwo){
+          score -= 20;
+        }
     }
 
     for (int col = 1; col <= COLS; ++col) {
-        std::vector<int> els;
+        std::vector<char> els;
         for (int row = ROWS; row >= 1; --row) {
           els.push_back(board_[row][col]);
         }
@@ -305,17 +326,25 @@ int Board::calculateScore(const char id, const std::unordered_map<unsigned, unsi
         auto count = std::count(els.begin(), els.end(), id);
         auto opponentCount = std::count(els.begin(), els.end(), opponent);
         auto emptys = std::count(els.begin(), els.end(), '*');
+
+        bool twoexists = checkAdjacent(2, els, id);
+        bool threeexits = checkAdjacent(3, els, id);
+
+        bool oponnentThree = checkAdjacent(3, els, opponent);
+        bool oponnentTwo = checkAdjacent(2, els, opponent);
         
-        if(count == 4){
+        if(count){
           score += 100;
-        } else if(count == 3 && emptys == 1){
-          score += 5;
-        } else if(count == 2 && emptys == 2){
-          score += 2;
+        } else if(threeexits){
+          score += 50;
+        } else if (twoexists){
+          score += 20;
         } 
         
-        if (opponentCount == 3 && emptys == 1){
-          score -= 1000;
+        if (oponnentThree){
+          score -= 70;
+        } else if(oponnentTwo) {
+          score -= 20;
         }
     }
 
@@ -325,11 +354,12 @@ int Board::calculateScore(const char id, const std::unordered_map<unsigned, unsi
         std::vector<int> els;
 
         for (int col = 1; col <= COLS-3; col++) {
+          els.clear();
           for(auto i{0}; i < 4; ++i){
             els.push_back(board_[row + i][col + i]);
           }
+          vecOfDiagonals.emplace_back(els);
         }
-        vecOfDiagonals.emplace_back(els);
         
         for(const auto& el : vecOfDiagonals){
           auto count = std::count(el.begin(), el.end(), id);
@@ -344,8 +374,8 @@ int Board::calculateScore(const char id, const std::unordered_map<unsigned, unsi
             score += 2;
           } 
         
-          if (opponentCount == 3 && emptys == 1){
-            score -= 1000;
+          if (opponentCount == 2){
+            score -= 7;
           }
         }
     }
@@ -355,11 +385,12 @@ int Board::calculateScore(const char id, const std::unordered_map<unsigned, unsi
      std::vector<int> els;
 
      for (int col = COLS; col >= COLS - 3; --col) {
+        els.clear();
         for(auto i{0}; i < 4; ++i){
             els.push_back(board_[row + i][col - i]);
           } 
-        }
-     vecOfDiagonals.push_back(els);
+        vecOfDiagonals.push_back(els);
+     }
 
     for(const auto& el : vecOfDiagonals){
           auto count = std::count(el.begin(), el.end(), id);
@@ -374,13 +405,12 @@ int Board::calculateScore(const char id, const std::unordered_map<unsigned, unsi
             score += 2;
           } 
         
-          if (opponentCount == 3 && emptys == 1){
-            score -= 1000;
+          if (opponentCount == 2){
+            score -= 7;
           }
         }
    }
-
-   return std::abs(score);    
+   return score;    
 }
 
 std::unordered_map<unsigned, unsigned> Board::checkPositions(){
@@ -416,7 +446,7 @@ int Board::findBestMove(Player& player){
 
         board_[row][col] = '*';
 
-        if(score > bestScore){
+        if(score >= bestScore){
           bestScore = score;
           bestMove = col;
         }
