@@ -21,7 +21,7 @@ class Board {
   int fullBoard();
   int checkFour(Player&);
   int restart();
-  int dropPlayer(Player&);
+  int dropPlayer(Player&, int);
   void displayMenu();
 
   inline void increaseNumberOfMoves(uint_fast8_t firstPlayerNum, uint_fast8_t secondPlayerNum){ 
@@ -35,20 +35,7 @@ class Board {
   int minMax(unsigned int, bool, Player&);
   int minMaxAlphaBeta(unsigned int, bool, Player&, int, int);
   std::unordered_map<unsigned, unsigned> checkPositions();
-  int findBestMove(Player&);
-
-  /* template <typename T>
-  bool checkAcjecent(T&& value, const std::vector<int>& values){
-   if constexpr (std::is_same<T, int>::value && value == 2){
-      for(auto i{0}; i < values.size() - 1; ++i){
-        return values.at(i) == values.at(i + 1);
-      }
-   } else if constexpr(std::is_same<T, int>::value && value == 3){
-      for(auto i{0}; i < values.size() - 2; ++i){
-        return values.at(i) == values.at(i+1) && values.at(i) == values.at(i+2);
-      }
-   } 
-  } */
+  int findBestMove(Player&, bool, int depth);
 
   private:
   std::vector<std::vector<char>> board_;

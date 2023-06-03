@@ -20,6 +20,7 @@ int main(){
 	Player playerOne, playerTwo;
   Board board(9,10);
 	int trueWidth = 7; 
+  int depth;
 	int trueLength = 6; 
 	int dropChoice, win, full, again;
   string nameOfPlayer;
@@ -60,10 +61,16 @@ int main(){
       setRandomPlayer("first", playerOne);
       setRandomPlayer("second", playerTwo);
     } else if(board.getChoice() == 5){
+      std::cout << "Insert the depth: ";
+      std::cin >> depth;
       setPlayer("first", playerOne);
       setRandomPlayer("second", playerTwo);
-    } 
-    else{
+    } else if(board.getChoice() == 6){
+      std::cout << "Insert the depth: ";
+      std::cin >> depth;
+      setPlayer("first", playerOne);
+      setRandomPlayer("second", playerTwo);
+    } else{
       cout << "Something is wrong!" << endl;
     }
   };
@@ -79,7 +86,7 @@ int main(){
   board.displayBoard();
 
 	do{
-    dropChoice = board.dropPlayer(playerOne);
+    dropChoice = board.dropPlayer(playerOne, depth);
     std::cout << "Drop choice in main function!" << std::endl;
     board.checkBellow(playerOne, dropChoice);
     board.displayBoard();
@@ -93,7 +100,7 @@ int main(){
 			}
 		}
     
-    dropChoice = board.dropPlayer(playerTwo);
+    dropChoice = board.dropPlayer(playerTwo, depth);
     board.checkBellow(playerTwo, dropChoice);
     board.displayBoard();
     win = board.checkFour(playerTwo);
