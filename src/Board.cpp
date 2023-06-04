@@ -271,13 +271,14 @@ int Board::calculateScore(const char id, const std::unordered_map<unsigned, unsi
     auto opponent = (id == 'X') ? 'O' : 'X';
 
     auto checkAdjacent = [](int size, const std::vector<char>& vec, const char player){
-      if(size == 2){
-        for(auto i{0}; i < vec.size() - 1; ++i){
-          if(vec.at(i) == vec.at(i+1) && vec.at(i) == player){
+      if(size == 4){
+        for(auto i{0}; i < vec.size() - 3; ++i){
+          if(vec.at(i) == vec.at(i+1) && vec.at(i) == vec.at(i+2) && vec.at(i) == vec.at(i+3) && vec.at(i) == player){
             return true;
           }
         }
       }
+
       if(size == 3){
         for(auto i{0}; i < vec.size() - 2; ++i){
           if(vec.at(i) == vec.at(i+1) && vec.at(i) == vec.at(i+2) && vec.at(i) == player){
@@ -285,9 +286,9 @@ int Board::calculateScore(const char id, const std::unordered_map<unsigned, unsi
           }
         }
       }
-      if(size == 4){
-        for(auto i{0}; i < vec.size() - 3; ++i){
-          if(vec.at(i) == vec.at(i+1) && vec.at(i) == vec.at(i+2) && vec.at(i) == vec.at(i+3) && vec.at(i) == player){
+      if(size == 2){
+        for(auto i{0}; i < vec.size() - 1; ++i){
+          if(vec.at(i) == vec.at(i+1) && vec.at(i) == player){
             return true;
           }
         }
@@ -330,9 +331,9 @@ int Board::calculateScore(const char id, const std::unordered_map<unsigned, unsi
         
         if (opponentFour){
           score -= 1000;
-        } else if (oponnentThree && emptys == 1){
-          score -= 20;
-        } else if (oponnentTwo && emptys == 2){
+        } else if (oponnentThree){
+          score -= 200;
+        } else if (oponnentTwo){
           score -= 10;
         }
 
@@ -364,9 +365,9 @@ int Board::calculateScore(const char id, const std::unordered_map<unsigned, unsi
         
         if (opponentFour){
           score -= 1000;
-        } else if (oponnentThree && emptys == 1){
-          score -= 20;
-        } else if (oponnentTwo && emptys == 2){
+        } else if (oponnentThree){
+          score -= 200;
+        } else if (oponnentTwo){
           score -= 10;
         }
     }
@@ -405,9 +406,9 @@ int Board::calculateScore(const char id, const std::unordered_map<unsigned, unsi
         
           if (opponentFour){
             score -= 1000;
-          } else if (oponnentThree && emptys == 1){
-            score -= 20;
-          } else if (oponnentTwo && emptys == 2){
+          } else if (oponnentThree){
+            score -= 200;
+          } else if (oponnentTwo){
             score -= 10;
           }  
         }
@@ -446,9 +447,9 @@ int Board::calculateScore(const char id, const std::unordered_map<unsigned, unsi
 
           if (opponentFour){
             score -= 1000;
-          } else if (oponnentThree && emptys == 1){
-            score -= 20;
-          } else if (oponnentTwo && emptys == 2){
+          } else if (oponnentThree){
+            score -= 200;
+          } else if (oponnentTwo){
             score -= 10;
           }
         

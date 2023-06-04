@@ -13,7 +13,7 @@ class Board {
   public:
   static constexpr int ROWS = 6;
   static constexpr int COLS = 7;
-  static constexpr int MAX_DEPTH = 4;
+  static constexpr int MAX_DEPTH = 7;
 
   Board(int row, int column) : board_(row, std::vector<char>(column, '.')){}
   void checkBellow(Player&, const int);
